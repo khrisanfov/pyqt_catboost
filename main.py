@@ -7,9 +7,6 @@ from PyQt5.QtWidgets import QApplication, qApp, QMainWindow, QWidget
 from PyQt5.QtCore import QObject, pyqtSignal, QThread, QTimer
 from widget import Ui_Widget
 
-test_df = pd.read_csv('./amazon/test.csv')
-X_test = test_df.drop('id', axis=1)
-
 
 class AbstractModel(QObject):
     status = pyqtSignal(str)
@@ -37,20 +34,22 @@ class CatBoostModel(AbstractModel):
         super().__init__()
         self.model = catboost.CatBoostClassifier()
         self.model.load_model('./catboost_model.bin')
+        self.X_test = pd.read_csv('./amazon/test.csv').drop('id', axis=1)
 
     def predict(self):
         for _ in range(10):
-            self.model.predict(X_test, thread_count=2)
+            self.model.predict(self.X_test, thread_count=2)
 
 
 class LightGBMModel(AbstractModel):
     def __init__(self):
         super().__init__()
         self.model = lgb.Booster(model_file='./lightgbm_model.bin')
+        self.X_test = pd.read_csv('./amazon/test.csv').drop('id', axis=1)
 
     def predict(self):
         for _ in range(50):
-            self.model.predict(X_test)
+            self.model.predict(self.X_test)
 
 
 class Widget(QWidget, Ui_Widget):
