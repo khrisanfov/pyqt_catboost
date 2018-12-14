@@ -38,7 +38,35 @@ class CatBoostModel(AbstractModel):
 
     def predict(self):
         for _ in range(10):
-            self.model.predict(self.X_test, thread_count=2)
+            self.model.predict_proba(self.X_test, thread_count=2)
+
+
+class CatBoostPoolModel(CatBoostModel):
+    def __init__(self):
+        super().__init__()
+        self.X_test = catboost.Pool(
+            data=self.X_test,
+            cat_features=list(range(len(self.X_test.columns.values)))
+        )
+
+    def predict(self):
+        for _ in range(100):
+            self.model.predict_proba(self.X_test, thread_count=2)
+
+
+class CatBoostFeaturesDataModel(CatBoostModel):
+    def __init__(self):
+        super().__init__()
+        self.X_test = catboost.Pool(
+            data=catboost.FeaturesData(
+                cat_feature_data=self.X_test.values.astype(str).astype(object),
+                cat_feature_names=list(self.X_test.columns)
+            )
+        )
+
+    def predict(self):
+        for _ in range(100):
+            self.model.predict_proba(self.X_test, thread_count=2)
 
 
 class LightGBMModel(AbstractModel):
@@ -72,13 +100,21 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.catboost_model = CatBoostModel()
+        self.catboost_pool_model = CatBoostPoolModel()
+        self.catboost_features_data_model = CatBoostFeaturesDataModel()
         self.lightgbm_model = LightGBMModel()
         self.widget = Widget(self)
         self.widget.run_catboost.clicked.connect(self.catboost_model.run)
+        self.widget.run_catboost_pool.clicked.connect(self.catboost_pool_model.run)
+        self.widget.run_catboost_features_data.clicked.connect(self.catboost_features_data_model.run)
         self.widget.run_lightgbm.clicked.connect(self.lightgbm_model.run)
         self.catboost_model.status.connect(self.widget.status.setText)
+        self.catboost_pool_model.status.connect(self.widget.status.setText)
+        self.catboost_features_data_model.status.connect(self.widget.status.setText)
         self.lightgbm_model.status.connect(self.widget.status.setText)
         self.catboost_model.thread_id.connect(self.widget.model_thread_id.setText)
+        self.catboost_pool_model.thread_id.connect(self.widget.model_thread_id.setText)
+        self.catboost_features_data_model.thread_id.connect(self.widget.model_thread_id.setText)
         self.lightgbm_model.thread_id.connect(self.widget.model_thread_id.setText)
         self.setCentralWidget(self.widget)
 

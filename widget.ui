@@ -17,14 +17,28 @@
    <item>
     <widget class="QPushButton" name="run_lightgbm">
      <property name="text">
-      <string>Run LightGBM</string>
+      <string>Run LightGBM (X is Pandas df)</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="run_catboost">
      <property name="text">
-      <string>Run CatBoost</string>
+      <string>Run CatBoost (X is Pandas df)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="run_catboost_pool">
+     <property name="text">
+      <string>Run CatBoost (X is Pool)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="run_catboost_features_data">
+     <property name="text">
+      <string>Run CatBoost (X is Pool with FeaturesData)</string>
      </property>
     </widget>
    </item>
